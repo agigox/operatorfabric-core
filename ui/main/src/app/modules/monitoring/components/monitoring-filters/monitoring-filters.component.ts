@@ -112,6 +112,11 @@ export class MonitoringFiltersComponent implements OnInit{
                 }
             ;
             this.store.dispatch(new ApplyFilter(businessDateFilter));
+
+            this.store.dispatch(new ApplyFilter({
+                name: FilterType.BUSINESSDATE_FILTER, active: true,
+                status: {start: start, end: end}
+                }));
         }
     }
 
