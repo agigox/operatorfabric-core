@@ -37,13 +37,17 @@ public class UserSettingsData implements UserSettings {
     private Boolean playSoundForCompliant;
     private Boolean playSoundForInformation;
 
+    @JsonIgnore
+    @Singular("notificationFilter")
+    private Set<NotificationFilterData> notificationFiltersSet;
+
     public UserSettingsData(UserSettings settings) {
         this.login = settings.getLogin();
         this.description = settings.getDescription();
         this.timeZone = settings.getTimeZone();
         this.locale = settings.getLocale();
 
-        if(settings.getDefaultTags()!=null)
+        if (settings.getDefaultTags() != null)
             this.defaultTagsSet = new HashSet<>(settings.getDefaultTags());
         else
             this.defaultTagsSet = null;
@@ -51,6 +55,11 @@ public class UserSettingsData implements UserSettings {
         this.playSoundForAction = settings.getPlaySoundForAction();
         this.playSoundForCompliant = settings.getPlaySoundForCompliant();
         this.playSoundForInformation = settings.getPlaySoundForInformation();
+
+        if (settings.getNotificationFilters() != null)
+            this.notificationFiltersSet = new HashSet<>((Collection<? extends NotificationFilterData>) settings.getNotificationFilters());
+        else
+            this.notificationFiltersSet = null;
     }
 
     public Set<String> getDefaultTagsSet() {
@@ -79,6 +88,27 @@ public class UserSettingsData implements UserSettings {
         return this;
     }
 
+    public Set<NotificationFilterData> getNotificationFiltersSet() {
+        if (this.notificationFiltersSet == null)
+            return Collections.emptySet();
+        return notificationFiltersSet;
+    }
+
+    @Override
+    public List<NotificationFilterData> getNotificationFilters() {
+        if (notificationFiltersSet == null)
+            return null;
+        return new ArrayList<>(notificationFiltersSet);
+    }
+
+    @Override
+    public void setNotificationFilters(List<? extends NotificationFilter> notificationFilters) {
+        if (notificationFilters != null)
+            notificationFiltersSet = new HashSet<>((Collection<? extends NotificationFilterData>) notificationFilters);
+        else
+            notificationFiltersSet = null;
+    }
+
     /**
      * Create a new patched settings using this as reference and overriding fields from other parameter when field is not
      * null.
@@ -95,9 +125,9 @@ public class UserSettingsData implements UserSettings {
         result.description = other.getDescription() != null ? other.getDescription() : this.getDescription();
         result.timeZone = other.getTimeZone() != null ? other.getTimeZone() : this.getTimeZone();
         result.locale = other.getLocale() != null ? other.getLocale() : this.getLocale();
-        if(other.getDefaultTags()!=null)
+        if (other.getDefaultTags() != null)
             result.defaultTagsSet = new HashSet<>(other.getDefaultTags());
-        else if (this.getDefaultTags()!=null)
+        else if (this.getDefaultTags() != null)
             result.defaultTagsSet = new HashSet<>(this.getDefaultTags());
         else
             result.defaultTagsSet = null;
@@ -105,6 +135,14 @@ public class UserSettingsData implements UserSettings {
         result.playSoundForAction = other.getPlaySoundForAction() != null ? other.getPlaySoundForAction() : this.getPlaySoundForAction();
         result.playSoundForCompliant = other.getPlaySoundForCompliant() != null ? other.getPlaySoundForCompliant() : this.getPlaySoundForCompliant();
         result.playSoundForInformation = other.getPlaySoundForInformation() != null ? other.getPlaySoundForInformation() : this.getPlaySoundForInformation();
+
+        if (other.getNotificationFilters() != null)
+            result.notificationFiltersSet = new HashSet<>((Collection<? extends NotificationFilterData>) other.getNotificationFilters());
+        else if (this.getNotificationFilters() != null)
+            result.notificationFiltersSet = new HashSet<>((Collection<? extends NotificationFilterData>) this.getNotificationFilters());
+        else
+            result.notificationFiltersSet = null;
+
         return result;
     }
 }

@@ -182,6 +182,12 @@ definitions:
       playSoundForInformation:
         type: boolean
         description: If this is set to true, a sound will be played for incoming cards with INFORMATION severity.
+      notificationFilters:
+        type: array
+        description: Filters on processes and states for user feed
+        items:
+          $ref: '#/definitions/NotificationFilter'
+          uniqueItems: true
     required:
       - login
     example:
@@ -211,6 +217,15 @@ definitions:
         type: string
       rights:
         $ref: '#/definitions/RightsEnum'
+  NotificationFilter:
+    type: object
+    properties:
+      process:
+        type: string
+      states:
+        type: array
+        items:
+          type: string
 
 paths:
   /users:
