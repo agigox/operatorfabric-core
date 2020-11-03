@@ -17,7 +17,8 @@ Feature: patch user settings
   "description" : "my dummy user",
   "timeZone" : "Europe/Dublin",
   "locale" : "en",
-  "defaultTags" : [ "tag 1", "tag 2" ]
+  "defaultTags" : [ "tag 1", "tag 2" ],
+  "notificationFilters": [ {"process": "processA", "states": ["state1", "state2"]}, {"process": "processB", "states": ["state3", "state4"]} ]
 }
 """
 
@@ -28,7 +29,8 @@ Feature: patch user settings
   "description" : "my dummy operator1 user",
   "timeZone" : "Australia/Melbourne",
   "locale" : "en",
-  "defaultTags" : [ "tag 3", "tag 4" ]
+  "defaultTags" : [ "tag 3", "tag 4" ],
+  "notificationFilters": [ {"process": "processC", "states": ["state5", "state6"]}, {"process": "processD", "states": ["state7", "state8"]} ]
 }
 """
 
@@ -39,7 +41,8 @@ Feature: patch user settings
   "description" : "my dummy nonexistentUser user",
   "timeZone" : "France/Paris",
   "locale" : "fr",
-  "defaultTags" : [ "tag 5", "tag 6" ]
+  "defaultTags" : [ "tag 5", "tag 6" ],
+  "notificationFilters": [ {"process": "processE", "states": ["state9", "state10"]}, {"process": "processF", "states": ["state11", "state12"]} ]
 }
 """
 
@@ -52,7 +55,7 @@ Feature: patch user settings
     Then status 401
 
 
-  Scenario: Patch user settings with an authorized user
+  Scenario: Patch user settings with an unauthorized user
 
     Given url opfabUrl + 'users/users/' + userSettings.login + '/settings'
     And header Authorization = 'Bearer ' + authTokenAsTSO
@@ -75,6 +78,7 @@ Feature: patch user settings
     And match response.timeZone == userSettings.timeZone
     And match response.locale == userSettings.locale
     And match response.defaultTags == userSettings.defaultTags
+    And match response.notificationFilters == userSettings.notificationFilters
 
 
   Scenario: Patch operator1 user settings with operator1 authentication
@@ -90,6 +94,7 @@ Feature: patch user settings
     And match response.timeZone == userSettingsDispatcher.timeZone
     And match response.locale == userSettingsDispatcher.locale
     And match response.defaultTags == userSettingsDispatcher.defaultTags
+    And match response.notificationFilters == userSettingsDispatcher.notificationFilters
 
 
   #404 : return status not reproducible with karate

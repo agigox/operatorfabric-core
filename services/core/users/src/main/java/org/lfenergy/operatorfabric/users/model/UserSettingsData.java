@@ -109,6 +109,11 @@ public class UserSettingsData implements UserSettings {
             notificationFiltersSet = null;
     }
 
+    public UserSettingsData clearNotificationFilters(){
+        setNotificationFilters(null);
+        return this;
+    }
+
     /**
      * Create a new patched settings using this as reference and overriding fields from other parameter when field is not
      * null.
