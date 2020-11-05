@@ -32,6 +32,5 @@ public class UsersModule extends SimpleModule {
     addAbstractTypeMapping(UserSettings.class,UserSettingsData.class);
     addAbstractTypeMapping(CurrentUserWithPerimeters.class,CurrentUserWithPerimetersData.class);
     addAbstractTypeMapping(ComputedPerimeter.class,ComputedPerimeterData.class);
-    addAbstractTypeMapping(NotificationFilter.class,NotificationFilterData.class);
     }
 }

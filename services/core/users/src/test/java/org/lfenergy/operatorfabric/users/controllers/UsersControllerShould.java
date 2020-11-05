@@ -120,12 +120,12 @@ class UsersControllerShould {
         us1 = UserSettingsData.builder()
                 .login("jcleese")
                 .description("Once played Sir Lancelot")
-                .notificationFilter(new NotificationFilterData("processA", Arrays.asList("state1", "state2")))
-                .notificationFilter(new NotificationFilterData("processB", Arrays.asList("state3", "state4")))
+                .processStatesNotNotified("processA", Arrays.asList("state1", "state2"))
+                .processStatesNotNotified("processB", Arrays.asList("state3", "state4"))
                 .build();
         us2 = UserSettingsData.builder()
                 .login("gchapman")
-                .notificationFiltersSet(Collections.emptySet())
+                .processesStatesNotNotified(Collections.emptyMap())
                 .build();
         us3 = UserSettingsData.builder()
                 .login("kkline")
@@ -233,15 +233,11 @@ class UsersControllerShould {
                     .andExpect(status().isOk())
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.login", is("jcleese")))
-                    .andExpect(jsonPath("$.notificationFilters", hasSize(2)))
-                    .andExpect(jsonPath("$.notificationFilters.[0].process", is("processA")))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states", hasSize(2)))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states.[0]", is("state1")))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states.[1]", is("state2")))
-                    .andExpect(jsonPath("$.notificationFilters.[1].process", is("processB")))
-                    .andExpect(jsonPath("$.notificationFilters.[1].states", hasSize(2)))
-                    .andExpect(jsonPath("$.notificationFilters.[1].states.[0]", is("state3")))
-                    .andExpect(jsonPath("$.notificationFilters.[1].states.[1]", is("state4")))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.*", hasSize(2)))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processA.[0]", is("state1")))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processA.[1]", is("state2")))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processB.[0]", is("state3")))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processB.[1]", is("state4")))
             ;
 
             ResultActions result2 = mockMvc.perform(get("/users/gchapman/settings"));
@@ -249,7 +245,7 @@ class UsersControllerShould {
                     .andExpect(status().isOk())
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.login", is("gchapman")))
-                    .andExpect(jsonPath("$.notificationFilters", hasSize(0)))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.*", hasSize(0)))
             ;
 
             ResultActions result3 = mockMvc.perform(get("/users/kkline/settings"));
@@ -257,7 +253,7 @@ class UsersControllerShould {
                     .andExpect(status().isOk())
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.login", is("kkline")))
-                    .andExpect(jsonPath("$.notificationFilters", hasSize(0)))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.*", hasSize(0)))
             ;
         }
 
@@ -284,7 +280,7 @@ class UsersControllerShould {
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.login", is("mpalin")))
                     .andExpect(jsonPath("$.description", is(nullValue())))
-                    .andExpect(jsonPath("$.notificationFilters", is(nullValue())))
+                    .andExpect(jsonPath("$.processesStatesNotNotified", is(nullValue())))
             ;
 
             mockMvc.perform(get("/users/mpalin/settings"))
@@ -292,35 +288,33 @@ class UsersControllerShould {
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.login", is("mpalin")))
                     .andExpect(jsonPath("$.description", is(nullValue())))
-                    .andExpect(jsonPath("$.notificationFilters", is(nullValue())))
+                    .andExpect(jsonPath("$.processesStatesNotNotified", is(nullValue())))
             ;
 
             mockMvc.perform(put("/users/mpalin/settings")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("{" +
                             "\"login\": \"mpalin\"," +
-                            "\"notificationFilters\": [{\"process\": \"processC\", \"states\": [\"state5\", \"state6\"]}]}")
+                            "\"processesStatesNotNotified\": {\"processC\":[\"state5\", \"state6\"]}}")
             )
                     .andExpect(status().isOk())
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.login", is("mpalin")))
                     .andExpect(jsonPath("$.description", is(nullValue())))
-                    .andExpect(jsonPath("$.notificationFilters", hasSize(1)))
-                    .andExpect(jsonPath("$.notificationFilters.[0].process", is("processC")))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states", hasSize(2)))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states.[0]", is("state5")))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states.[1]", is("state6")))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.*", hasSize(1)))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC", hasSize(2)))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC.[0]", is("state5")))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC.[1]", is("state6")))
             ;
             mockMvc.perform(get("/users/mpalin/settings"))
                     .andExpect(status().isOk())
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.login", is("mpalin")))
                     .andExpect(jsonPath("$.description", is(nullValue())))
-                    .andExpect(jsonPath("$.notificationFilters", hasSize(1)))
-                    .andExpect(jsonPath("$.notificationFilters.[0].process", is("processC")))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states", hasSize(2)))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states.[0]", is("state5")))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states.[1]", is("state6")))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.*", hasSize(1)))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC", hasSize(2)))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC.[0]", is("state5")))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC.[1]", is("state6")))
             ;
 
         }
@@ -336,7 +330,7 @@ class UsersControllerShould {
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.login", is("mpalin")))
                     .andExpect(jsonPath("$.description", is(nullValue())))
-                    .andExpect(jsonPath("$.notificationFilters", is(nullValue())))
+                    .andExpect(jsonPath("$.processesStatesNotNotified", is(nullValue())))
             ;
 
             mockMvc.perform(get("/users/mpalin/settings"))
@@ -344,35 +338,33 @@ class UsersControllerShould {
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.login", is("mpalin")))
                     .andExpect(jsonPath("$.description", is(nullValue())))
-                    .andExpect(jsonPath("$.notificationFilters", is(nullValue())))
+                    .andExpect(jsonPath("$.processesStatesNotNotified", is(nullValue())))
             ;
 
             mockMvc.perform(patch("/users/mpalin/settings")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("{" +
                             "\"login\": \"mpalin\"," +
-                            "\"notificationFilters\": [{\"process\": \"processC\", \"states\": [\"state5\", \"state6\"]}]}")
+                            "\"processesStatesNotNotified\": {\"processC\": [\"state5\", \"state6\"]}}")
             )
                     .andExpect(status().isOk())
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.login", is("mpalin")))
                     .andExpect(jsonPath("$.description", is(nullValue())))
-                    .andExpect(jsonPath("$.notificationFilters", hasSize(1)))
-                    .andExpect(jsonPath("$.notificationFilters.[0].process", is("processC")))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states", hasSize(2)))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states.[0]", is("state5")))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states.[1]", is("state6")))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.*", hasSize(1)))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC", hasSize(2)))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC.[0]", is("state5")))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC.[1]", is("state6")))
             ;
             mockMvc.perform(get("/users/mpalin/settings"))
                     .andExpect(status().isOk())
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.login", is("mpalin")))
                     .andExpect(jsonPath("$.description", is(nullValue())))
-                    .andExpect(jsonPath("$.notificationFilters", hasSize(1)))
-                    .andExpect(jsonPath("$.notificationFilters.[0].process", is("processC")))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states", hasSize(2)))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states.[0]", is("state5")))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states.[1]", is("state6")))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.*", hasSize(1)))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC", hasSize(2)))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC.[0]", is("state5")))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC.[1]", is("state6")))
             ;
 
             mockMvc.perform(patch("/users/mpalin/settings")
@@ -385,23 +377,21 @@ class UsersControllerShould {
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.login", is("mpalin")))
                     .andExpect(jsonPath("$.description", is("a short description for mpalin")))
-                    .andExpect(jsonPath("$.notificationFilters", hasSize(1)))
-                    .andExpect(jsonPath("$.notificationFilters.[0].process", is("processC")))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states", hasSize(2)))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states.[0]", is("state5")))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states.[1]", is("state6")))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.*", hasSize(1)))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC", hasSize(2)))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC.[0]", is("state5")))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC.[1]", is("state6")))
             ;
-            //We check that notificationFilters has not been deleted
+            //We check that processesStatesNotNotified has not been deleted
             mockMvc.perform(get("/users/mpalin/settings"))
                     .andExpect(status().isOk())
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.login", is("mpalin")))
                     .andExpect(jsonPath("$.description", is("a short description for mpalin")))
-                    .andExpect(jsonPath("$.notificationFilters", hasSize(1)))
-                    .andExpect(jsonPath("$.notificationFilters.[0].process", is("processC")))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states", hasSize(2)))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states.[0]", is("state5")))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states.[1]", is("state6")))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.*", hasSize(1)))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC", hasSize(2)))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC.[0]", is("state5")))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC.[1]", is("state6")))
             ;
 
         }
@@ -418,14 +408,14 @@ class UsersControllerShould {
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.login", is("tjones")))
                     .andExpect(jsonPath("$.description", is(nullValue())))
-                    .andExpect(jsonPath("$.notificationFilters", hasSize(0)))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.*", hasSize(0)))
             ;
             mockMvc.perform(get("/users/tjones/settings"))
                     .andExpect(status().isOk())
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.login", is("tjones")))
                     .andExpect(jsonPath("$.description", is(nullValue())))
-                    .andExpect(jsonPath("$.notificationFilters", hasSize(0)))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.*", hasSize(0)))
             ;
 
         }
@@ -974,7 +964,7 @@ class UsersControllerShould {
                     .andExpect(status().isOk())
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.login", is("gchapman")))
-                    .andExpect(jsonPath("$.notificationFilters", hasSize(0)))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.*", hasSize(0)))
             ;
         }
 
@@ -993,17 +983,16 @@ class UsersControllerShould {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("{" +
                             "\"login\": \"gchapman\"," +
-                            "\"notificationFilters\": [{\"process\": \"processC\", \"states\": [\"state5\", \"state6\"]}]}")
+                            "\"processesStatesNotNotified\": {\"processC\": [\"state5\", \"state6\"]}}")
             )
                     .andExpect(status().isOk())
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.login", is("gchapman")))
                     .andExpect(jsonPath("$.description", is(nullValue())))
-                    .andExpect(jsonPath("$.notificationFilters", hasSize(1)))
-                    .andExpect(jsonPath("$.notificationFilters.[0].process", is("processC")))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states", hasSize(2)))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states.[0]", is("state5")))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states.[1]", is("state6")))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.*", hasSize(1)))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC", hasSize(2)))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC.[0]", is("state5")))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC.[1]", is("state6")))
             ;
 
             mockMvc.perform(get("/users/gchapman/settings"))
@@ -1011,39 +1000,36 @@ class UsersControllerShould {
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.login", is("gchapman")))
                     .andExpect(jsonPath("$.description", is(nullValue())))
-                    .andExpect(jsonPath("$.notificationFilters", hasSize(1)))
-                    .andExpect(jsonPath("$.notificationFilters.[0].process", is("processC")))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states", hasSize(2)))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states.[0]", is("state5")))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states.[1]", is("state6")))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.*", hasSize(1)))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC", hasSize(2)))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC.[0]", is("state5")))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC.[1]", is("state6")))
             ;
 
             mockMvc.perform(put("/users/gchapman/settings")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("{" +
                             "\"login\": \"gchapman\"," +
-                            "\"notificationFilters\": [{\"process\": \"processC\", \"states\": [\"state5\", \"state6\"]}]}")
+                            "\"processesStatesNotNotified\": {\"processC\": [\"state5\", \"state6\"]}}")
             )
                     .andExpect(status().isOk())
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.login", is("gchapman")))
                     .andExpect(jsonPath("$.description", is(nullValue())))
-                    .andExpect(jsonPath("$.notificationFilters", hasSize(1)))
-                    .andExpect(jsonPath("$.notificationFilters.[0].process", is("processC")))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states", hasSize(2)))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states.[0]", is("state5")))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states.[1]", is("state6")))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.*", hasSize(1)))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC", hasSize(2)))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC.[0]", is("state5")))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC.[1]", is("state6")))
             ;
             mockMvc.perform(get("/users/gchapman/settings"))
                     .andExpect(status().isOk())
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.login", is("gchapman")))
                     .andExpect(jsonPath("$.description", is(nullValue())))
-                    .andExpect(jsonPath("$.notificationFilters", hasSize(1)))
-                    .andExpect(jsonPath("$.notificationFilters.[0].process", is("processC")))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states", hasSize(2)))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states.[0]", is("state5")))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states.[1]", is("state6")))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.*", hasSize(1)))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC", hasSize(2)))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC.[0]", is("state5")))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC.[1]", is("state6")))
             ;
 
         }
@@ -1070,7 +1056,7 @@ class UsersControllerShould {
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.login", is("gchapman")))
                     .andExpect(jsonPath("$.description", is(nullValue())))
-                    .andExpect(jsonPath("$.notificationFilters", is(nullValue())))
+                    .andExpect(jsonPath("$.processesStatesNotNotified", is(nullValue())))
             ;
 
             mockMvc.perform(get("/users/gchapman/settings"))
@@ -1078,35 +1064,33 @@ class UsersControllerShould {
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.login", is("gchapman")))
                     .andExpect(jsonPath("$.description", is(nullValue())))
-                    .andExpect(jsonPath("$.notificationFilters", is(nullValue())))
+                    .andExpect(jsonPath("$.processesStatesNotNotified", is(nullValue())))
             ;
 
             mockMvc.perform(patch("/users/gchapman/settings")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("{" +
                             "\"login\": \"gchapman\"," +
-                            "\"notificationFilters\": [{\"process\": \"processC\", \"states\": [\"state5\", \"state6\"]}]}")
+                            "\"processesStatesNotNotified\": {\"processC\":[\"state5\", \"state6\"]}}")
             )
                     .andExpect(status().isOk())
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.login", is("gchapman")))
                     .andExpect(jsonPath("$.description", is(nullValue())))
-                    .andExpect(jsonPath("$.notificationFilters", hasSize(1)))
-                    .andExpect(jsonPath("$.notificationFilters.[0].process", is("processC")))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states", hasSize(2)))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states.[0]", is("state5")))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states.[1]", is("state6")))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.*", hasSize(1)))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC", hasSize(2)))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC.[0]", is("state5")))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC.[1]", is("state6")))
             ;
             mockMvc.perform(get("/users/gchapman/settings"))
                     .andExpect(status().isOk())
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.login", is("gchapman")))
                     .andExpect(jsonPath("$.description", is(nullValue())))
-                    .andExpect(jsonPath("$.notificationFilters", hasSize(1)))
-                    .andExpect(jsonPath("$.notificationFilters.[0].process", is("processC")))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states", hasSize(2)))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states.[0]", is("state5")))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states.[1]", is("state6")))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.*", hasSize(1)))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC", hasSize(2)))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC.[0]", is("state5")))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC.[1]", is("state6")))
             ;
 
             mockMvc.perform(patch("/users/gchapman/settings")
@@ -1119,23 +1103,21 @@ class UsersControllerShould {
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.login", is("gchapman")))
                     .andExpect(jsonPath("$.description", is("a short description for gchapman")))
-                    .andExpect(jsonPath("$.notificationFilters", hasSize(1)))
-                    .andExpect(jsonPath("$.notificationFilters.[0].process", is("processC")))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states", hasSize(2)))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states.[0]", is("state5")))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states.[1]", is("state6")))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.*", hasSize(1)))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC", hasSize(2)))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC.[0]", is("state5")))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC.[1]", is("state6")))
             ;
-            //We check that notificationFilters has not been deleted
+            //We check that processesStatesNotNotified has not been deleted
             mockMvc.perform(get("/users/gchapman/settings"))
                     .andExpect(status().isOk())
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.login", is("gchapman")))
                     .andExpect(jsonPath("$.description", is("a short description for gchapman")))
-                    .andExpect(jsonPath("$.notificationFilters", hasSize(1)))
-                    .andExpect(jsonPath("$.notificationFilters.[0].process", is("processC")))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states", hasSize(2)))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states.[0]", is("state5")))
-                    .andExpect(jsonPath("$.notificationFilters.[0].states.[1]", is("state6")))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.*", hasSize(1)))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC", hasSize(2)))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC.[0]", is("state5")))
+                    .andExpect(jsonPath("$.processesStatesNotNotified.processC.[1]", is("state6")))
             ;
 
         }

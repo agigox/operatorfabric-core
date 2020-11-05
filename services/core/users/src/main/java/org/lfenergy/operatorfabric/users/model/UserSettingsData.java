@@ -37,9 +37,8 @@ public class UserSettingsData implements UserSettings {
     private Boolean playSoundForCompliant;
     private Boolean playSoundForInformation;
 
-    @JsonIgnore
-    @Singular("notificationFilter")
-    private Set<NotificationFilterData> notificationFiltersSet;
+    @Singular("processStatesNotNotified")
+    private Map<String, List<String>> processesStatesNotNotified;
 
     public UserSettingsData(UserSettings settings) {
         this.login = settings.getLogin();
@@ -56,10 +55,10 @@ public class UserSettingsData implements UserSettings {
         this.playSoundForCompliant = settings.getPlaySoundForCompliant();
         this.playSoundForInformation = settings.getPlaySoundForInformation();
 
-        if (settings.getNotificationFilters() != null)
-            this.notificationFiltersSet = new HashSet<>((Collection<? extends NotificationFilterData>) settings.getNotificationFilters());
+        if (settings.getProcessesStatesNotNotified() != null)
+            this.processesStatesNotNotified = new HashMap<>(settings.getProcessesStatesNotNotified());
         else
-            this.notificationFiltersSet = null;
+            this.processesStatesNotNotified = null;
     }
 
     public Set<String> getDefaultTagsSet() {
@@ -88,29 +87,8 @@ public class UserSettingsData implements UserSettings {
         return this;
     }
 
-    public Set<NotificationFilterData> getNotificationFiltersSet() {
-        if (this.notificationFiltersSet == null)
-            return Collections.emptySet();
-        return notificationFiltersSet;
-    }
-
-    @Override
-    public List<NotificationFilterData> getNotificationFilters() {
-        if (notificationFiltersSet == null)
-            return null;
-        return new ArrayList<>(notificationFiltersSet);
-    }
-
-    @Override
-    public void setNotificationFilters(List<? extends NotificationFilter> notificationFilters) {
-        if (notificationFilters != null)
-            notificationFiltersSet = new HashSet<>((Collection<? extends NotificationFilterData>) notificationFilters);
-        else
-            notificationFiltersSet = null;
-    }
-
-    public UserSettingsData clearNotificationFilters(){
-        setNotificationFilters(null);
+    public UserSettingsData clearProcessesStatesNotNotified(){
+        setProcessesStatesNotNotified(null);
         return this;
     }
 
@@ -141,12 +119,12 @@ public class UserSettingsData implements UserSettings {
         result.playSoundForCompliant = other.getPlaySoundForCompliant() != null ? other.getPlaySoundForCompliant() : this.getPlaySoundForCompliant();
         result.playSoundForInformation = other.getPlaySoundForInformation() != null ? other.getPlaySoundForInformation() : this.getPlaySoundForInformation();
 
-        if (other.getNotificationFilters() != null)
-            result.notificationFiltersSet = new HashSet<>((Collection<? extends NotificationFilterData>) other.getNotificationFilters());
-        else if (this.getNotificationFilters() != null)
-            result.notificationFiltersSet = new HashSet<>((Collection<? extends NotificationFilterData>) this.getNotificationFilters());
+        if (other.getProcessesStatesNotNotified() != null)
+            result.processesStatesNotNotified = new HashMap<>(other.getProcessesStatesNotNotified());
+        else if (this.getProcessesStatesNotNotified() != null)
+            result.processesStatesNotNotified = new HashMap<>(this.getProcessesStatesNotNotified());
         else
-            result.notificationFiltersSet = null;
+            result.processesStatesNotNotified = null;
 
         return result;
     }
