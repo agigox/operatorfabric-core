@@ -126,6 +126,7 @@
       "description": true
     },
     "locale": "en",
+    "dateTimeFormat": "HH:mm DD/MM/YYYY",
     "nightDayMode": true,
     "styleWhenNightDayModeDesactivated" : "NIGHT"
   },
